@@ -199,7 +199,7 @@ export default function LandingPage() {
 
                     <div>
                       <p className="text-sm font-extrabold text-foreground">
-                        Tidak perlu instal aplikasi
+                        Akses uji coba EduBidan
                       </p>
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                         Gunakan perangkat yang paling nyaman untuk mencoba
