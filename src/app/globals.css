@@ -1,0 +1,67 @@
+/* 1. Panggil inti Tailwind */
+@import "tailwindcss";
+
+/* 2. Panggil file warna buatan kita */
+@import "./theme.css";
+
+/* 3. Pengaturan Font */
+@theme inline {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* 4. Pengaturan Base Layer */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+}
+
+/* ---------------------------------------------------
+   5. GLOBAL SCROLLBAR (Elegan & Melayang) 
+------------------------------------------------------ */
+
+/* Firefox: Terapkan scrollbar tipis secara default */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #374151 transparent; 
+}
+
+/* Chrome, Safari, Edge */
+::-webkit-scrollbar {
+  width: 6px; 
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; 
+  margin: 4px; /* Memberikan jarak agar scrollbar terasa 'melayang' di dalam kontainer */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #374151; 
+  border-radius: 10px;       
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #6b7280; 
+}
+
+/* ---------------------------------------------------
+   6. CUSTOM UTILITIES 
+------------------------------------------------------ */
+@layer utilities {
+  /* Class untuk menyembunyikan scrollbar (misal: di menu filter kategori) */
+  .scrollbar-none {
+    -ms-overflow-style: none; /* IE & Edge */
+    scrollbar-width: none;    /* Firefox */
+  }
+  
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;            /* Chrome, Safari, Edge */
+  }
+}

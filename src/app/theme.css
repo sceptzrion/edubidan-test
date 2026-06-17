@@ -1,0 +1,80 @@
+/* Mengaktifkan manual dark mode (menggunakan class "dark" di HTML) */
+@custom-variant dark (&:is(.dark *));
+
+/* ☀️ LIGHT MODE WARNA */
+:root {
+  --background: #FAFBFD;
+  --foreground: #1A1D2B;
+  --card: #ffffff;
+  --card-foreground: #1A1D2B;
+  --popover: #ffffff;
+  --popover-foreground: #1A1D2B;
+  --primary: #0D9488;
+  --primary-foreground: #ffffff;
+  --secondary: #F0FDFA;
+  --secondary-foreground: #0D9488;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #F0FDFA;
+  --accent-foreground: #0F766E;
+  --destructive: #EF4444;
+  --destructive-foreground: #ffffff;
+  --border: #E2E8F0;
+  --input: transparent;
+  --input-background: #F8FAFC;
+  --switch-background: #CBD5E1;
+  --ring: #0D9488;
+  --radius: 0.625rem;
+}
+
+/* 🌙 DARK MODE WARNA */
+.dark {
+  --background: #0F172A;
+  --foreground: #F1F5F9;
+  --card: #1E293B;
+  --card-foreground: #F1F5F9;
+  --popover: #1E293B;
+  --popover-foreground: #F1F5F9;
+  --primary: #14B8A6;
+  --primary-foreground: #0F172A;
+  --secondary: #1E293B;
+  --secondary-foreground: #14B8A6;
+  --muted: #334155;
+  --muted-foreground: #94A3B8;
+  --accent: #1E293B;
+  --accent-foreground: #5EEAD4;
+  --destructive: #DC2626;
+  --destructive-foreground: #FEE2E2;
+  --border: #334155;
+  --input: #334155;
+  --ring: #14B8A6;
+}
+
+/* Mendaftarkan variabel CSS di atas agar dikenali sebagai class Tailwind */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}

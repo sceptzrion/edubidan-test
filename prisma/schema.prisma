@@ -1,0 +1,426 @@
+// EduBidan - Prisma Schema
+// Database: MySQL
+// ORM: Prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum Role {
+  MAHASISWA
+  DOSEN
+  ADMIN
+}
+
+enum ModuleStatus {
+  DRAFT
+  PUBLIK
+}
+
+enum VideoSource {
+  EMBED   // YouTube embed link
+  UPLOAD  // Media yang diupload
+}
+
+enum NotificationType {
+  MATERI_BARU
+  KUIS_BARU
+  HASIL_KUIS
+  GABUNG_MODUL
+  KUIS_DIKERJAKAN
+  MODUL_DIPUBLIKASI
+  MODUL_DIPERBARUI
+  MAHASISWA_BARU
+  MAHASISWA_BERGABUNG
+  AKUN_DIBUAT
+  AKUN_DIAKTIFKAN
+  AKUN_DINONAKTIFKAN
+  SYSTEM_ALERT
+}
+
+enum OtpStatus {
+  PENDING
+  USED
+  EXPIRED
+}
+
+enum ContentType {
+  MATERI
+  KUIS
+}
+
+// =============================================================================
+// USER & AUTH
+// =============================================================================
+
+model User {
+  id              Int      @id @default(autoincrement())
+  name            String   @db.VarChar(100)
+  email           String   @unique @db.VarChar(100)
+  password        String   @db.VarChar(255)
+  role            Role     @default(MAHASISWA)
+  avatarUrl       String?  @db.VarChar(500)
+  avatarPublicId  String?  @db.VarChar(500)
+  phoneNumber     String?  @db.VarChar(20)
+  isActive        Boolean  @default(true)
+
+  // Khusus versi demo/testing
+  isDemo          Boolean   @default(false)
+  demoCode        String?   @unique @db.VarChar(30)
+  demoExpiresAt   DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relasi khusus per role
+  mahasiswaProfile MahasiswaProfile?
+  dosenProfile     DosenProfile?
+
+  // Relasi Umum
+  enrollments     Enrollment[]
+  quizAttempts    QuizAttempt[]
+  notifications   Notification[]
+  lessonProgress  LessonProgress[]
+  notifPreference NotifPreference?
+  
+  // Relasi aktivitas
+  activityLogs    ActivityLog[] 
+
+  @@index([email])
+  @@index([isDemo])
+  @@index([demoExpiresAt])
+  @@map("users")
+}
+
+model MahasiswaProfile {
+  id     Int    @id @default(autoincrement())
+  userId Int    @unique
+  npm    String @unique @db.VarChar(20)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("mahasiswa_profiles")
+}
+
+model DosenProfile {
+  id     Int    @id @default(autoincrement())
+  userId Int    @unique
+  nidnNip String @unique @db.VarChar(30)
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  modules Module[]
+
+  @@map("dosen_profiles")
+}
+
+// =============================================================================
+// OTP (Lupa Kata Sandi)
+// =============================================================================
+
+model OtpCode {
+  id        Int       @id @default(autoincrement())
+  email     String    @db.VarChar(100)
+  code      String    @db.VarChar(4)
+  status    OtpStatus @default(PENDING)
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  @@index([email, status])
+  @@map("otp_codes")
+}
+
+// =============================================================================
+// MODUL
+// =============================================================================
+
+model Module {
+  id              Int          @id @default(autoincrement())
+  dosenProfileId  Int
+  title           String       @db.VarChar(200)
+  description     String?      @db.Text
+  bannerUrl       String?      @db.VarChar(500)
+  bannerPublicId  String?      @db.VarChar(500)
+  accessCode      String       @unique @db.VarChar(20)
+  status          ModuleStatus @default(DRAFT)
+  estimatedMinutes Int?        // estimasi waktu belajar dalam menit
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  dosenProfile DosenProfile       @relation(fields: [dosenProfileId], references: [id])
+  objectives   ModuleObjective[]
+  contents     ModuleContent[]    // materi & kuis (berurutan)
+  enrollments  Enrollment[]
+  notifications Notification[]
+
+  @@index([accessCode])
+  @@map("modules")
+}
+
+model ModuleObjective {
+  id       Int    @id @default(autoincrement())
+  moduleId Int
+  text     String @db.VarChar(500)
+  order    Int    @default(0)
+
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@map("module_objectives")
+}
+
+// =============================================================================
+// KONTEN MODUL (Materi & Kuis - terurut)
+// =============================================================================
+
+model ModuleContent {
+  id       Int         @id @default(autoincrement())
+  moduleId Int
+  kind     ContentType @default(MATERI) // <-- Gunakan Enum di sini
+  order    Int         @default(0)
+
+  module   Module      @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  materi   Materi?
+  kuis     Kuis?
+
+  @@index([moduleId, order])
+  @@map("module_contents")
+}
+
+// =============================================================================
+// MATERI
+// =============================================================================
+
+model Materi {
+  id              Int         @id @default(autoincrement())
+  contentId       Int         @unique
+  title           String      @db.VarChar(200)
+  description     String?     @db.Text   // ringkasan/deskripsi materi
+  videoSource     VideoSource @default(EMBED)
+  videoUrl        String?     @db.VarChar(500) // embed url atau path upload
+  estimatedMinutes Int?       // durasi video/estimasi waktu dalam menit
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  content    ModuleContent     @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  objectives MateriObjective[]
+  tools      MateriTool[]
+  progress   LessonProgress[]
+
+  @@map("materis")
+}
+
+model MateriObjective {
+  id       Int    @id @default(autoincrement())
+  materiId Int
+  text     String @db.VarChar(500)
+  order    Int    @default(0)
+
+  materi Materi @relation(fields: [materiId], references: [id], onDelete: Cascade)
+
+  @@map("materi_objectives")
+}
+
+model MateriTool {
+  id       Int    @id @default(autoincrement())
+  materiId Int
+  name     String @db.VarChar(100)
+
+  materi Materi @relation(fields: [materiId], references: [id], onDelete: Cascade)
+
+  @@map("materi_tools")
+}
+
+// Progress membaca/menonton materi per mahasiswa
+model LessonProgress {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  materiId    Int
+  isCompleted Boolean  @default(false)
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  materi Materi @relation(fields: [materiId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, materiId])
+  @@map("lesson_progress")
+}
+
+// =============================================================================
+// KUIS
+// =============================================================================
+
+model Kuis {
+  id               Int      @id @default(autoincrement())
+  contentId        Int      @unique
+  title            String   @db.VarChar(200)
+  description      String?  @db.Text
+  hasTimeLimit     Boolean  @default(false)
+  timeLimitMinutes Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  content  ModuleContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  soals    Soal[]
+  attempts QuizAttempt[]
+
+  @@map("kuis")
+}
+
+model Soal {
+  id            Int     @id @default(autoincrement())
+  kuisId        Int
+  questionText  String  @db.Text
+  mediaUrl      String? @db.VarChar(500) // gambar/media pendukung soal (opsional)
+  mediaPublicId String? @db.VarChar(500)
+  order         Int     @default(0)
+
+  kuis          Kuis           @relation(fields: [kuisId], references: [id], onDelete: Cascade)
+  options       SoalOption[]
+  attemptAnswers AttemptAnswer[]
+
+  @@index([kuisId, order])
+  @@map("soals")
+}
+
+model SoalOption {
+  id        Int     @id @default(autoincrement())
+  soalId    Int
+  text      String  @db.Text
+  isCorrect Boolean @default(false)
+  order     Int     @default(0)
+
+  soal          Soal          @relation(fields: [soalId], references: [id], onDelete: Cascade)
+  attemptAnswers AttemptAnswer[]
+
+  @@map("soal_options")
+}
+
+// =============================================================================
+// PENGERJAAN KUIS (QuizAttempt)
+// =============================================================================
+
+model QuizAttempt {
+  id            Int       @id @default(autoincrement())
+  userId        Int
+  kuisId        Int
+  score         Float?    // skor akhir (0-100)
+  totalCorrect  Int?
+  totalQuestions Int?
+  durationSeconds Int?   // waktu pengerjaan dalam detik
+  startedAt     DateTime  @default(now())
+  submittedAt   DateTime?
+  isCompleted   Boolean   @default(false)
+
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kuis    Kuis          @relation(fields: [kuisId], references: [id], onDelete: Cascade)
+  answers AttemptAnswer[]
+
+  @@index([userId, kuisId])
+  @@map("quiz_attempts")
+}
+
+model AttemptAnswer {
+  id          Int  @id @default(autoincrement())
+  attemptId   Int
+  soalId      Int
+  optionId    Int? // opsi yang dipilih (null = tidak dijawab)
+
+  attempt QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  soal    Soal        @relation(fields: [soalId], references: [id])
+  option  SoalOption? @relation(fields: [optionId], references: [id])
+
+  @@unique([attemptId, soalId])
+  @@map("attempt_answers")
+}
+
+// =============================================================================
+// ENROLLMENT (Mahasiswa gabung modul)
+// =============================================================================
+
+model Enrollment {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  moduleId   Int
+  isKicked   Boolean  @default(false)
+  kickReason String?  @db.Text
+  joinedAt   DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+  @@index([moduleId])
+  @@map("enrollments")
+}
+
+// =============================================================================
+// NOTIFIKASI
+// =============================================================================
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  userId    Int
+  moduleId  Int?
+  type      NotificationType
+  title     String           @db.VarChar(200)
+  body      String           @db.Text
+  href      String?          @db.VarChar(500)
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module Module? @relation(fields: [moduleId], references: [id], onDelete: SetNull)
+
+  @@index([userId, isRead])
+  @@index([type])
+  @@map("notifications")
+}
+
+// =============================================================================
+// PREFERENSI NOTIFIKASI
+// =============================================================================
+
+model NotifPreference {
+  id              Int     @id @default(autoincrement())
+  userId          Int     @unique
+
+  moduleUpdate    Boolean @default(true)
+  newMaterial     Boolean @default(true)
+  newQuiz         Boolean @default(true)
+  quizResult      Boolean @default(true)
+  quizActivity    Boolean @default(true)
+  accountActivity Boolean @default(true)
+  systemAlert     Boolean @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notif_preferences")
+}
+
+// =============================================================================
+// LOG AKTIVITAS (Dasbor Admin & Dosen)
+// =============================================================================
+
+model ActivityLog {
+  id          Int      @id @default(autoincrement())
+  userId      Int?     // Opsional jika sistem yang melakukan aksi
+  actionType  String   @db.VarChar(50)
+  description String   @db.Text
+  ipAddress   String?  @db.VarChar(45)
+  createdAt   DateTime @default(now())
+
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("activity_logs")
+}
