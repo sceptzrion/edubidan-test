@@ -1,11 +1,24 @@
 import type { Metadata } from "next";
+import {
+  CheckCircle2,
+  ClipboardCheck,
+  GraduationCap,
+  KeyRound,
+  MousePointerClick,
+  ShieldCheck,
+  Sparkles,
+  UserRoundPlus,
+} from "lucide-react";
 
 import { Navbar } from "@/components/layout/public/Navbar";
 import { Footer } from "@/components/layout/public/Footer";
 import { AboutCard } from "@/components/sections/landing/AboutCard";
 import { FeatureCard } from "@/components/sections/landing/FeatureCard";
 import { StepCard } from "@/components/sections/landing/StepCard";
-import { HeroActions, LandingCta } from "@/components/sections/landing/LandingActions";
+import {
+  HeroActions,
+  LandingCta,
+} from "@/components/sections/landing/LandingActions";
 import { LandingFaq } from "@/components/sections/landing/LandingFaq";
 import {
   aboutHighlights,
@@ -15,13 +28,115 @@ import {
   learningSteps,
   topicHighlights,
 } from "@/data/public/landing-content";
-import { GraduationCap } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "EduBidan | Media Pembelajaran Kebidanan Digital",
+  title: "EduBidan Demo | Usability Testing",
   description:
-    "EduBidan adalah platform pembelajaran digital untuk mahasiswa kebidanan dengan materi video, modul pembelajaran, dan kuis evaluasi.",
+    "EduBidan Demo adalah versi uji coba platform pembelajaran digital kebidanan untuk pengujian fitur, alur, dan kemudahan penggunaan.",
 };
+
+const demoSteps = [
+  {
+    icon: MousePointerClick,
+    title: "1. Buka Halaman Login",
+    desc: "Masuk ke halaman login, lalu gunakan panel Mode Uji Coba untuk membuat akun demo.",
+  },
+  {
+    icon: UserRoundPlus,
+    title: "2. Pilih Role Demo",
+    desc: "Pilih Mahasiswa untuk mencoba alur belajar atau Dosen untuk mencoba pengelolaan modul dan kuis.",
+  },
+  {
+    icon: KeyRound,
+    title: "3. Generate Akun",
+    desc: "Sistem akan membuat email dan kata sandi demo secara otomatis dengan data dummy yang siap dicoba.",
+  },
+  {
+    icon: ClipboardCheck,
+    title: "4. Explore dan Isi Form",
+    desc: "Coba fitur sesuai skenario, lalu isi kuesioner usability berdasarkan pengalaman penggunaan.",
+  },
+];
+
+function DemoGuideCard() {
+  return (
+    <section
+      id="panduan-uji-coba"
+      className="py-20 bg-background border-y border-border"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10 items-start">
+          <div className="rounded-3xl border border-primary/20 bg-linear-to-br from-primary/10 via-card to-teal-500/10 p-8 shadow-sm">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-bold text-primary mb-5">
+              <ShieldCheck size={16} />
+              Panduan Responden
+            </div>
+
+            <h2 className="text-3xl font-extrabold tracking-tight text-foreground mb-4">
+              Ini adalah versi uji coba EduBidan
+            </h2>
+
+            <p className="text-muted-foreground leading-relaxed mb-6">
+              Versi ini disiapkan untuk kebutuhan pengujian. Responden dapat
+              membuat akun demo, mencoba fitur sesuai role, dan mengeksplorasi
+              aplikasi tanpa mengganggu data utama. Setiap akun demo memiliki
+              email, kata sandi, dan data dummy masing-masing.
+            </p>
+
+            <div className="space-y-3 text-sm">
+              <div className="flex items-start gap-3 rounded-2xl border border-border bg-background/80 p-4">
+                <CheckCircle2 className="mt-0.5 text-primary" size={18} />
+                <span className="text-muted-foreground">
+                  Gunakan role <b className="text-foreground">Mahasiswa</b>{" "}
+                  untuk mencoba modul, materi, kuis evaluasi, hasil kuis, dan
+                  pengaturan akun.
+                </span>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-2xl border border-border bg-background/80 p-4">
+                <CheckCircle2 className="mt-0.5 text-primary" size={18} />
+                <span className="text-muted-foreground">
+                  Gunakan role <b className="text-foreground">Dosen</b> untuk
+                  mencoba kelola modul, materi, kuis, peserta, analisis kuis,
+                  dan rekap nilai.
+                </span>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-2xl border border-border bg-background/80 p-4">
+                <CheckCircle2 className="mt-0.5 text-primary" size={18} />
+                <span className="text-muted-foreground">
+                  Role Admin hanya digunakan untuk pengujian terbatas oleh
+                  peneliti atau pengelola sistem.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-5">
+            {demoSteps.map((step) => (
+              <div
+                key={step.title}
+                className="rounded-3xl border border-border bg-card p-6 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all"
+              >
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <step.icon size={24} />
+                </div>
+
+                <h3 className="text-lg font-extrabold text-foreground mb-2">
+                  {step.title}
+                </h3>
+
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {step.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function LandingPage() {
   return (
@@ -36,22 +151,23 @@ export default function LandingPage() {
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
                 <div className="inline-flex items-center gap-2 bg-primary/10 text-primary font-semibold px-4 py-1.5 rounded-full text-sm mb-6">
-                  <GraduationCap size={16} />
-                  Media Belajar Interaktif
+                  <Sparkles size={16} />
+                  Versi Uji Coba EduBidan
                 </div>
 
                 <h1 className="text-4xl lg:text-5xl tracking-tight mb-6 font-extrabold leading-[1.15]">
-                  Platform Digital
+                  Coba Platform
                   <br />
                   <span className="text-primary">Pembelajaran Kebidanan</span>
                   <br />
-                  Interaktif
+                  Secara Interaktif
                 </h1>
 
                 <p className="text-muted-foreground text-lg mb-8 max-w-lg leading-relaxed">
-                  EduBidan membantu mahasiswa kebidanan mengulas materi dasar
-                  melalui modul pembelajaran, video penunjang, dan kuis evaluasi
-                  yang dapat diakses secara mandiri.
+                  EduBidan Demo disiapkan untuk pengujian alur dan kemudahan
+                  penggunaan. Buat akun demo sesuai role, masuk ke dashboard,
+                  lalu coba modul, materi video, kuis evaluasi, progres belajar,
+                  dan rekap nilai.
                 </p>
 
                 <HeroActions />
@@ -74,10 +190,31 @@ export default function LandingPage() {
                     className="w-full h-80 lg:h-112.5 object-cover"
                   />
                 </div>
+
+                <div className="absolute -bottom-6 left-6 right-6 rounded-2xl border border-border bg-card/95 p-4 shadow-xl backdrop-blur">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                      <GraduationCap size={20} />
+                    </div>
+
+                    <div>
+                      <p className="text-sm font-extrabold text-foreground">
+                        Tidak perlu instal aplikasi
+                      </p>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        Pengujian dapat dilakukan melalui browser di laptop,
+                        tablet, atau smartphone karena tampilan web sudah
+                        responsif.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
+
+        <DemoGuideCard />
 
         <section id="about" className="py-20 bg-card">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -112,8 +249,9 @@ export default function LandingPage() {
                 Fokus Materi Pembelajaran
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
-                Materi EduBidan pada versi awal difokuskan pada tiga topik dasar
-                kebidanan tanpa fitur kategori atau filter khusus di dalam sistem.
+                Materi EduBidan pada versi awal difokuskan pada topik dasar
+                kebidanan yang disajikan melalui modul, materi video, dan kuis
+                evaluasi.
               </p>
             </div>
 
@@ -140,8 +278,8 @@ export default function LandingPage() {
                 Alur Pembelajaran
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
-                Alur penggunaan EduBidan dibuat sederhana agar mahasiswa dapat
-                langsung belajar, mengerjakan kuis, dan melihat hasil evaluasi.
+                Alur penggunaan EduBidan dibuat sederhana agar pengguna dapat
+                langsung mencoba fitur utama sesuai role yang digunakan.
               </p>
             </div>
 

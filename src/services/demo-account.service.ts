@@ -18,6 +18,22 @@ type DemoAccountResult = {
   expiresAt: Date;
 };
 
+const DEMO_IMAGES = {
+  pregnancy:
+    "https://images.unsplash.com/photo-1632053651899-3389100579fb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
+  newborn:
+    "https://images.unsplash.com/photo-1701557774684-a5d563c46c1c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
+  breastfeeding:
+    "https://images.unsplash.com/photo-1632053002434-b203dc8efb37?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
+};
+
+const DEMO_VIDEO_URL = "https://www.youtube.com/embed/o_l3NiAtoKo";
+
+const DEMO_VIDEOS = {
+  ancIntro: DEMO_VIDEO_URL,
+  ancSteps: DEMO_VIDEO_URL,
+};
+
 const DEFAULT_DEMO_DOMAIN = "edubidan.test";
 const DEFAULT_EXPIRES_DAYS = 7;
 
@@ -102,7 +118,7 @@ async function createMateri(params: {
       title: params.title,
       description: params.description,
       videoSource: VideoSource.EMBED,
-      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      videoUrl: DEMO_VIDEOS.ancIntro,
       estimatedMinutes: params.estimatedMinutes,
       objectives: {
         create: params.objectives.map((text, index) => ({
@@ -427,7 +443,7 @@ async function createDosenDemoAccount(): Promise<DemoAccountResult> {
       title: `[DEMO ${identity.digits}] Pemeriksaan Kehamilan Dasar`,
       description:
         "Modul demo untuk pengujian fitur dosen, materi, kuis, peserta, analisis kuis, dan rekap nilai.",
-      bannerUrl: "/images/modules/pemeriksaan-kehamilan.jpg",
+      bannerUrl: DEMO_IMAGES.pregnancy,
       accessCode: `DM${identity.digits}${Date.now().toString().slice(-4)}`,
       status: ModuleStatus.PUBLIK,
       estimatedMinutes: 90,

@@ -26,6 +26,28 @@ const prisma = new PrismaClient({
 
 const DEFAULT_PASSWORD = "password123";
 
+const DEMO_IMAGES = {
+  pregnancy:
+    "https://images.unsplash.com/photo-1632053651899-3389100579fb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
+  newborn:
+    "https://images.unsplash.com/photo-1701557774684-a5d563c46c1c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
+  breastfeeding:
+    "https://images.unsplash.com/photo-1632053002434-b203dc8efb37?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
+  demo:
+    "https://images.unsplash.com/photo-1645684922842-87793d0b25df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
+};
+
+const DEMO_VIDEO_URL = "https://www.youtube.com/embed/o_l3NiAtoKo";
+
+const DEMO_VIDEOS = {
+  ancIntro: DEMO_VIDEO_URL,
+  ancSteps: DEMO_VIDEO_URL,
+  newbornCare: DEMO_VIDEO_URL,
+  newbornObservation: DEMO_VIDEO_URL,
+  breastfeedingBasic: DEMO_VIDEO_URL,
+  breastfeedingLatch: DEMO_VIDEO_URL,
+};
+
 async function clearDatabase() {
   console.log("Cleaning old local seed data...");
 
@@ -226,7 +248,7 @@ async function main() {
   const admin = await prisma.user.create({
     data: {
       name: "Admin EduBidan",
-      email: "admin@edubidan.id",
+      email: "admin@edubidan.my.id",
       password,
       role: Role.ADMIN,
       phoneNumber: "081200000001",
@@ -358,7 +380,7 @@ async function main() {
       title: "Pemeriksaan Kehamilan Dasar",
       description:
         "Modul video dan evaluasi dasar untuk memahami alur pemeriksaan antenatal care.",
-      bannerUrl: "/images/modules/pemeriksaan-kehamilan.jpg",
+      bannerUrl: DEMO_IMAGES.pregnancy,
       accessCode: "ANC001",
       status: ModuleStatus.PUBLIK,
       estimatedMinutes: 90,
@@ -387,7 +409,7 @@ async function main() {
       title: "Perawatan Bayi Baru Lahir",
       description:
         "Modul pembelajaran mengenai perawatan awal bayi baru lahir secara aman dan terstruktur.",
-      bannerUrl: "/images/modules/perawatan-bayi-baru-lahir.jpg",
+      bannerUrl: DEMO_IMAGES.newborn,
       accessCode: "BBL001",
       status: ModuleStatus.PUBLIK,
       estimatedMinutes: 75,
@@ -412,7 +434,7 @@ async function main() {
       title: "Teknik Menyusui",
       description:
         "Modul pembelajaran mengenai teknik menyusui, posisi ibu dan bayi, serta pelekatan yang tepat.",
-      bannerUrl: "/images/modules/teknik-menyusui.jpg",
+      bannerUrl: DEMO_IMAGES.breastfeeding,
       accessCode: "ASI001",
       status: ModuleStatus.PUBLIK,
       estimatedMinutes: 60,
@@ -437,6 +459,7 @@ async function main() {
       title: "Modul Draft Simulasi",
       description:
         "Modul draft untuk menguji status publikasi pada dashboard dosen dan admin.",
+      bannerUrl: DEMO_IMAGES.demo,
       accessCode: "DRAFT001",
       status: ModuleStatus.DRAFT,
       estimatedMinutes: 30,
@@ -449,7 +472,7 @@ async function main() {
     title: "Pengenalan Pemeriksaan Antenatal Care",
     description:
       "Materi ini menjelaskan pengertian, tujuan, alat, dan alur dasar pemeriksaan kehamilan.",
-    videoUrl: "https://www.youtube.com/embed/example-anc-1",
+    videoUrl: DEMO_VIDEOS.ancIntro,
     estimatedMinutes: 25,
     objectives: [
       "Menjelaskan pengertian pemeriksaan antenatal care.",
@@ -465,7 +488,7 @@ async function main() {
     title: "Tahapan Pemeriksaan Ibu Hamil",
     description:
       "Materi ini membahas tahapan pemeriksaan ibu hamil mulai dari anamnesis hingga pemeriksaan fisik dasar.",
-    videoUrl: "https://www.youtube.com/embed/example-anc-2",
+    videoUrl: DEMO_VIDEOS.ancSteps,
     estimatedMinutes: 30,
     objectives: [
       "Menjelaskan tahapan anamnesis singkat.",
@@ -557,7 +580,7 @@ async function main() {
     title: "Prinsip Perawatan Bayi Baru Lahir",
     description:
       "Materi ini membahas prinsip awal perawatan bayi baru lahir, termasuk menjaga kehangatan dan observasi kondisi bayi.",
-    videoUrl: "https://www.youtube.com/embed/example-bbl-1",
+    videoUrl: DEMO_VIDEOS.newbornCare,
     estimatedMinutes: 25,
     objectives: [
       "Menjelaskan prinsip dasar perawatan bayi baru lahir.",
@@ -572,7 +595,7 @@ async function main() {
     title: "Observasi Awal Bayi Baru Lahir",
     description:
       "Materi ini menjelaskan observasi awal kondisi bayi baru lahir secara sederhana dan terstruktur.",
-    videoUrl: "https://www.youtube.com/embed/example-bbl-2",
+    videoUrl: DEMO_VIDEOS.newbornObservation,
     estimatedMinutes: 20,
     objectives: [
       "Menjelaskan komponen observasi awal bayi baru lahir.",
@@ -642,7 +665,7 @@ async function main() {
     title: "Dasar Teknik Menyusui",
     description:
       "Materi ini membahas konsep dasar teknik menyusui, kenyamanan ibu, dan posisi bayi.",
-    videoUrl: "https://www.youtube.com/embed/example-asi-1",
+    videoUrl: DEMO_VIDEOS.breastfeedingBasic,
     estimatedMinutes: 25,
     objectives: [
       "Menjelaskan prinsip dasar teknik menyusui.",
@@ -657,7 +680,7 @@ async function main() {
     title: "Pelekatan Bayi Saat Menyusui",
     description:
       "Materi ini menjelaskan tanda pelekatan bayi yang baik saat menyusui.",
-    videoUrl: "https://www.youtube.com/embed/example-asi-2",
+    videoUrl: DEMO_VIDEOS.breastfeedingLatch,
     estimatedMinutes: 20,
     objectives: [
       "Menjelaskan tanda pelekatan bayi yang tepat.",

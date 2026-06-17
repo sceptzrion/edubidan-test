@@ -1,8 +1,19 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2, Mail } from "lucide-react";
+import {
+  Check,
+  Copy,
+  GraduationCap,
+  Loader2,
+  Mail,
+  RefreshCw,
+  ShieldCheck,
+  Sparkles,
+  UserRoundCheck,
+  UsersRound,
+} from "lucide-react";
 
 import { AuthShell } from "@/components/auth/shared/AuthShell";
 import { PasswordInput } from "@/components/auth/shared/PasswordInput";
@@ -16,6 +27,23 @@ type LoginApiResponse = {
     redirectTo: string;
   } | null;
 };
+
+type DemoRole = "MAHASISWA" | "DOSEN";
+
+type DemoAccount = {
+  email: string;
+  password: string;
+  role: DemoRole;
+  expiresAt?: string;
+};
+
+type DemoAccountApiResponse = {
+  success: boolean;
+  message: string;
+  data: DemoAccount | null;
+};
+
+const DEMO_COOLDOWN_SECONDS = 20;
 
 function getFriendlyLoginError(message: string) {
   if (message === "Email is required") {
@@ -53,6 +81,18 @@ function getReasonMessage(reason: string | null) {
   return "";
 }
 
+function getRoleLabel(role: DemoRole) {
+  return role === "MAHASISWA" ? "Mahasiswa" : "Dosen";
+}
+
+function getRoleDescription(role: DemoRole) {
+  if (role === "MAHASISWA") {
+    return "Cocok untuk mencoba dashboard, modul, materi, kuis evaluasi, hasil kuis, dan pengaturan akun.";
+  }
+
+  return "Cocok untuk mencoba dashboard dosen, kelola modul, materi, kuis, peserta, analisis kuis, dan rekap nilai.";
+}
+
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -62,6 +102,14 @@ export function LoginForm() {
   const [remember, setRemember] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [demoRole, setDemoRole] = useState<DemoRole>("MAHASISWA");
+  const [demoAccount, setDemoAccount] = useState<DemoAccount | null>(null);
+  const [demoErrorMessage, setDemoErrorMessage] = useState("");
+  const [demoSuccessMessage, setDemoSuccessMessage] = useState("");
+  const [isGeneratingDemo, setIsGeneratingDemo] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const [hasCopiedDemoAccount, setHasCopiedDemoAccount] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -76,9 +124,34 @@ export function LoginForm() {
     return email.trim().length > 0 && password.trim().length > 0;
   }, [email, password]);
 
+  useEffect(() => {
+    if (cooldownSeconds <= 0) return;
+
+    const timer = window.setTimeout(() => {
+      setCooldownSeconds((current) => Math.max(current - 1, 0));
+    }, 1000);
+
+    return () => window.clearTimeout(timer);
+  }, [cooldownSeconds]);
+
+  useEffect(() => {
+    if (!hasCopiedDemoAccount) return;
+
+    const timer = window.setTimeout(() => {
+      setHasCopiedDemoAccount(false);
+    }, 2000);
+
+    return () => window.clearTimeout(timer);
+  }, [hasCopiedDemoAccount]);
+
   const clearMessages = () => {
     setErrorMessage("");
     setReasonMessage("");
+  };
+
+  const clearDemoMessages = () => {
+    setDemoErrorMessage("");
+    setDemoSuccessMessage("");
   };
 
   const handleForgotPassword = () => {
@@ -90,12 +163,73 @@ export function LoginForm() {
     router.push(targetPath);
   };
 
+  const handleGenerateDemoAccount = async () => {
+    if (isGeneratingDemo || isBusy || cooldownSeconds > 0) return;
+
+    clearMessages();
+    clearDemoMessages();
+    setDemoAccount(null);
+    setHasCopiedDemoAccount(false);
+    setIsGeneratingDemo(true);
+
+    try {
+      const response = await fetch("/api/demo-accounts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          role: demoRole,
+        }),
+      });
+
+      const result = (await response.json()) as DemoAccountApiResponse;
+
+      if (!response.ok || !result.success || !result.data) {
+        setDemoErrorMessage(
+          result.message || "Gagal membuat akun demo. Silakan coba lagi."
+        );
+        return;
+      }
+
+      setDemoAccount(result.data);
+      setEmail(result.data.email);
+      setPassword(result.data.password);
+      setRemember(false);
+      setCooldownSeconds(DEMO_COOLDOWN_SECONDS);
+      setDemoSuccessMessage(
+        `Akun demo ${getRoleLabel(result.data.role)} berhasil dibuat. Email dan kata sandi sudah otomatis diisi pada form login.`
+      );
+    } catch (error) {
+      console.error("Generate demo account error:", error);
+      setDemoErrorMessage("Terjadi kesalahan koneksi saat membuat akun demo.");
+    } finally {
+      setIsGeneratingDemo(false);
+    }
+  };
+
+  const handleCopyDemoAccount = async () => {
+    if (!demoAccount) return;
+
+    const text = `Email: ${demoAccount.email}\nPassword: ${demoAccount.password}`;
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setHasCopiedDemoAccount(true);
+    } catch {
+      setDemoErrorMessage(
+        "Browser tidak mengizinkan salin otomatis. Silakan salin email dan kata sandi secara manual."
+      );
+    }
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!isFormValid || isBusy) return;
 
     clearMessages();
+    clearDemoMessages();
     setIsSubmitting(true);
     setIsRedirecting(false);
 
@@ -136,22 +270,159 @@ export function LoginForm() {
     }
   };
 
+  const isGenerateDisabled =
+    isGeneratingDemo || isBusy || cooldownSeconds > 0;
+
   return (
     <AuthShell
-      sideTitle="Selamat Datang Kembali"
-      sideDescription="Masuk untuk melanjutkan pembelajaran, mengelola modul, atau memantau aktivitas EduBidan sesuai peran akun Anda."
+      sideTitle="Akses Uji Coba EduBidan"
+      sideDescription="Gunakan akun demo untuk mencoba alur pembelajaran, pengelolaan modul, kuis evaluasi, dan dashboard sesuai role tanpa mengganggu data utama."
       sideVariant="primary"
     >
       <form
         onSubmit={handleSubmit}
         className="animate-in fade-in slide-in-from-bottom-4 duration-500"
       >
+        <div className="mb-7 rounded-3xl border border-primary/20 bg-linear-to-br from-primary/10 via-card to-teal-500/10 p-4 sm:p-5 shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+              <Sparkles size={20} />
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-base font-extrabold text-foreground">
+                  Mode Uji Coba
+                </h2>
+                <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-extrabold text-primary">
+                  Usability Testing
+                </span>
+              </div>
+
+              <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                Pilih role, buat akun demo otomatis, lalu masuk untuk mencoba
+                fitur EduBidan. Setiap akun demo memiliki data dummy sendiri.
+              </p>
+
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                {(["MAHASISWA", "DOSEN"] as DemoRole[]).map((role) => {
+                  const isSelected = demoRole === role;
+
+                  return (
+                    <button
+                      key={role}
+                      type="button"
+                      onClick={() => {
+                        setDemoRole(role);
+                        clearDemoMessages();
+                      }}
+                      disabled={isGeneratingDemo || isBusy}
+                      className={`rounded-2xl border px-3 py-3 text-left transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
+                        isSelected
+                          ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                          : "border-border bg-background hover:border-primary/50 hover:bg-primary/5"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {role === "MAHASISWA" ? (
+                          <GraduationCap size={17} />
+                        ) : (
+                          <UsersRound size={17} />
+                        )}
+                        <span className="text-sm font-extrabold">
+                          {getRoleLabel(role)}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <p className="mt-3 text-[11px] sm:text-xs leading-relaxed text-muted-foreground">
+                {getRoleDescription(demoRole)}
+              </p>
+
+              <button
+                type="button"
+                onClick={handleGenerateDemoAccount}
+                disabled={isGenerateDisabled}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-foreground px-4 py-3 text-sm font-extrabold text-background transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isGeneratingDemo ? (
+                  <Loader2 size={17} className="animate-spin" />
+                ) : cooldownSeconds > 0 ? (
+                  <RefreshCw size={17} />
+                ) : (
+                  <UserRoundCheck size={17} />
+                )}
+
+                {isGeneratingDemo
+                  ? "Membuat akun demo..."
+                  : cooldownSeconds > 0
+                    ? `Tunggu ${cooldownSeconds} detik`
+                    : `Generate Akun Demo ${getRoleLabel(demoRole)}`}
+              </button>
+
+              {demoSuccessMessage && (
+                <div className="mt-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-xs font-semibold leading-relaxed text-emerald-700 dark:text-emerald-300">
+                  {demoSuccessMessage}
+                </div>
+              )}
+
+              {demoErrorMessage && (
+                <div className="mt-4 rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-xs font-semibold leading-relaxed text-destructive">
+                  {demoErrorMessage}
+                </div>
+              )}
+
+              {demoAccount && (
+                <div className="mt-4 rounded-2xl border border-border bg-background/80 p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                        Akun demo aktif
+                      </p>
+                      <p className="mt-1 truncate text-xs font-extrabold text-foreground">
+                        {demoAccount.email}
+                      </p>
+                      <p className="mt-0.5 text-xs font-semibold text-muted-foreground">
+                        Password: {demoAccount.password}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleCopyDemoAccount}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                      aria-label="Salin akun demo"
+                    >
+                      {hasCopiedDemoAccount ? (
+                        <Check size={17} />
+                      ) : (
+                        <Copy size={17} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-4 flex items-start gap-2 rounded-2xl bg-background/70 px-3 py-3 text-[11px] leading-relaxed text-muted-foreground">
+                <ShieldCheck size={15} className="mt-0.5 shrink-0 text-primary" />
+                <span>
+                  Admin tidak dibuat otomatis dari halaman ini. Role Admin
+                  hanya digunakan untuk pengujian terbatas oleh peneliti.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <h1 className="text-3xl font-extrabold tracking-tight mb-2 text-foreground">
           Masuk ke Akun
         </h1>
 
         <p className="text-muted-foreground mb-8 text-sm">
-          Masukkan email dan kata sandi untuk melanjutkan.
+          Gunakan akun terdaftar atau akun demo yang sudah dibuat.
         </p>
 
         {reasonMessage && (
@@ -189,6 +460,7 @@ export function LoginForm() {
                 onChange={(event) => {
                   setEmail(event.target.value);
                   clearMessages();
+                  clearDemoMessages();
                 }}
                 placeholder="Masukkan email"
                 className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-card border border-border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm disabled:opacity-60 disabled:cursor-not-allowed"
@@ -204,6 +476,7 @@ export function LoginForm() {
             onChange={(value) => {
               setPassword(value);
               clearMessages();
+              clearDemoMessages();
             }}
             placeholder="Masukkan kata sandi"
             inputClassName="py-3.5 pl-11 pr-12"
@@ -277,7 +550,7 @@ export function LoginForm() {
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-8">
-          Belum punya akun?{" "}
+          Ingin mendaftar sebagai mahasiswa asli?{" "}
           <button
             type="button"
             onClick={() => router.push("/register")}

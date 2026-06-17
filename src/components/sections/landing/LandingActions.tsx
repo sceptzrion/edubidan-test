@@ -10,10 +10,10 @@ export function HeroActions() {
     <div className="flex flex-wrap gap-4">
       <button
         type="button"
-        onClick={() => router.push("/register")}
+        onClick={() => router.push("/login")}
         className="bg-primary text-primary-foreground px-8 py-3.5 rounded-xl hover:opacity-90 transition-all flex items-center gap-2 text-base shadow-lg shadow-primary/25 font-semibold"
       >
-        Mulai Belajar
+        Mulai Uji Coba
         <ArrowRight size={18} />
       </button>
 
@@ -21,12 +21,12 @@ export function HeroActions() {
         type="button"
         onClick={() =>
           document
-            .getElementById("alur-belajar")
+            .getElementById("panduan-uji-coba")
             ?.scrollIntoView({ behavior: "smooth" })
         }
         className="border border-border bg-card px-8 py-3.5 rounded-xl hover:bg-muted transition-all text-base font-semibold"
       >
-        Pelajari Lebih Lanjut
+        Lihat Panduan
       </button>
     </div>
   );
@@ -47,29 +47,33 @@ export function LandingCta() {
             </div>
 
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-              Siap Mengulas Materi Kebidanan?
+              Siap Mencoba EduBidan?
             </h2>
 
             <p className="text-white/80 text-sm md:text-base mb-10 max-w-xl mx-auto leading-relaxed">
-              Buat akun mahasiswa untuk mengakses modul pembelajaran, mempelajari
-              materi video, dan mengukur pemahaman melalui kuis evaluasi.
+              Buat akun demo sesuai role, masuk ke dashboard, lalu coba alur
+              pembelajaran, pengelolaan modul, kuis evaluasi, dan rekap nilai.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center w-full sm:w-auto">
               <button
                 type="button"
-                onClick={() => router.push("/register")}
+                onClick={() => router.push("/login")}
                 className="bg-white text-primary px-8 py-3.5 rounded-xl hover:bg-slate-50 transition-all font-bold shadow-lg text-sm"
               >
-                Buat Akun
+                Generate Akun Demo
               </button>
 
               <button
                 type="button"
-                onClick={() => router.push("/about")}
+                onClick={() =>
+                  document
+                    .getElementById("panduan-uji-coba")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
                 className="bg-white/10 text-white border border-white/20 px-8 py-3.5 rounded-xl hover:bg-white/20 transition-all font-bold backdrop-blur-sm text-sm"
               >
-                Kenali EduBidan
+                Baca Alur Uji Coba
               </button>
             </div>
           </div>
