@@ -202,9 +202,9 @@ export default function LandingPage() {
                         Tidak perlu instal aplikasi
                       </p>
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                        Pengujian dapat dilakukan melalui browser di laptop,
-                        tablet, atau smartphone karena tampilan web sudah
-                        responsif.
+                        Gunakan perangkat yang paling nyaman untuk mencoba
+                        alur fitur, membuat akun demo, dan mengisi kuesioner
+                        berdasarkan pengalaman penggunaan.
                       </p>
                     </div>
                   </div>
