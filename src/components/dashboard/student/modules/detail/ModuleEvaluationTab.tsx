@@ -25,9 +25,11 @@ export function ModuleEvaluationTab({
           <TaskItem
             key={`kuis-${item.id}`}
             item={toModuleTaskItem(item)}
-            onClick={() =>
-              router.push(`/dashboard/modules/${moduleId}/quiz/${item.id}`)
-            }
+            onClick={() => {
+              if (item.isLocked) return;
+
+              router.push(`/dashboard/modules/${moduleId}/quiz/${item.id}`);
+            }}
           />
         ))
       ) : (

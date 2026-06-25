@@ -1,5 +1,12 @@
 import React from "react";
-import { CheckCircle2, Play, Video, HelpCircle, Clock } from "lucide-react";
+import {
+  CheckCircle2,
+  Play,
+  Video,
+  HelpCircle,
+  Clock,
+  Lock,
+} from "lucide-react";
 
 interface PlaylistItem {
   id: number;
@@ -7,6 +14,8 @@ interface PlaylistItem {
   title: string;
   duration: string;
   completed: boolean;
+  isLocked?: boolean;
+  lockedReason?: string;
 }
 
 interface PlaylistProps {
@@ -34,18 +43,31 @@ export function Playlist({ items, activeIndex, onNavigate }: PlaylistProps) {
           {items.map((l, i) => {
             const isMateri = l.kind === "materi";
             const isActive = i === activeIndex;
+            const isLocked = l.isLocked ?? false;
 
             return (
               <button
                 key={`${l.kind}-${l.id}`}
-                onClick={() => onNavigate(l)}
+                onClick={() => {
+                  if (isLocked) return;
+
+                  onNavigate(l);
+                }}
+                disabled={isLocked}
+                title={isLocked ? l.lockedReason : undefined}
                 className={`w-full flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-left transition-all group ${
                   isActive
                     ? "bg-primary/5 border border-primary/20 shadow-sm"
+                    : isLocked
+                    ? "border border-transparent opacity-60 cursor-not-allowed"
                     : "border border-transparent hover:bg-muted"
                 }`}
               >
-                {l.completed ? (
+                {isLocked ? (
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 border border-muted-foreground/30 text-muted-foreground/50">
+                    <Lock size={12} className="sm:w-3.5 sm:h-3.5" />
+                  </div>
+                ) : l.completed ? (
                   <CheckCircle2
                     size={22}
                     className={`shrink-0 mx-0.5 sm:mx-1 ${
@@ -89,17 +111,28 @@ export function Playlist({ items, activeIndex, onNavigate }: PlaylistProps) {
                   <div className="flex items-center gap-2 mb-0.5 sm:mb-1">
                     <span
                       className={`text-[8px] sm:text-[9px] px-1.5 sm:px-2 py-0.5 rounded uppercase tracking-wider font-bold ${
-                        isMateri
+                        isLocked
+                          ? "bg-muted text-muted-foreground"
+                          : isMateri
                           ? "bg-primary/10 text-primary"
                           : "bg-amber-500/10 text-amber-600"
                       }`}
                     >
                       {isMateri ? "Materi" : "Kuis"}
                     </span>
+
+                    {isLocked && (
+                      <span className="text-[8px] sm:text-[9px] px-1.5 sm:px-2 py-0.5 rounded uppercase tracking-wider font-bold bg-muted text-muted-foreground">
+                        Terkunci
+                      </span>
+                    )}
                   </div>
+
                   <p
                     className={`text-xs sm:text-sm truncate ${
-                      isActive
+                      isLocked
+                        ? "text-muted-foreground font-semibold"
+                        : isActive
                         ? isMateri
                           ? "text-primary font-extrabold"
                           : "text-amber-600 font-extrabold"
@@ -108,6 +141,12 @@ export function Playlist({ items, activeIndex, onNavigate }: PlaylistProps) {
                   >
                     {l.title}
                   </p>
+
+                  {isLocked && l.lockedReason && (
+                    <p className="text-[9px] sm:text-[10px] text-muted-foreground font-semibold truncate mt-0.5">
+                      {l.lockedReason}
+                    </p>
+                  )}
                 </div>
 
                 <span className="text-[9px] sm:text-[10px] font-bold text-muted-foreground shrink-0 flex items-center gap-1 sm:gap-1.5 bg-muted px-1.5 sm:px-2 py-1 rounded-md">

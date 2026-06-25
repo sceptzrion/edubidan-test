@@ -338,6 +338,8 @@ export function toModulePlaylistItem(item: LearningItem) {
     objectivesCount: item.objectives?.length ?? 0,
     toolsCount: item.tools?.length ?? 0,
     isCompleted: item.isCompleted,
+    isLocked: item.isLocked ?? false,
+    lockedReason: item.lockedReason,
   };
 }
 
@@ -350,6 +352,8 @@ export function toModuleTaskItem(item: LearningItem) {
     } Menit`,
     isCompleted: item.isCompleted,
     score: item.latestScore,
+    isLocked: item.isLocked ?? false,
+    lockedReason: item.lockedReason,
   };
 }
 
@@ -363,5 +367,7 @@ export function toLessonPlaylistItem(item: LearningItem) {
         ? `${item.timeLimitMinutes ?? item.estimatedMinutes} Menit`
         : item.duration,
     completed: item.isCompleted,
+    isLocked: item.isLocked ?? false,
+    lockedReason: item.lockedReason,
   };
 }

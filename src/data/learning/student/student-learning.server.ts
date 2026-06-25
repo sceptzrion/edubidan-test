@@ -7,6 +7,10 @@ import {
   formatMinutes,
   formatRoundedModuleMinutes,
 } from "@/lib/video/youtube";
+import {
+  applySequentialAccess,
+  canAccessSequentialItem,
+} from "@/lib/learning/sequential-access";
 import type { LearningItem, LearningModule } from "@/types/learning";
 
 const fallbackModuleImage =
@@ -411,7 +415,7 @@ function mapModuleToLearningModule(params: {
       name: enrollment.user.name,
       email: enrollment.user.email,
     })),
-    items,
+    items: applySequentialAccess(items),
   };
 }
 
@@ -561,11 +565,15 @@ export async function getStudentLessonData(params: {
   if (!learningModule) return null;
 
   const itemIndex = learningModule.items.findIndex(
-    (item) => item.id === params.itemId
+    (item) => item.kind === "materi" && item.id === params.itemId
   );
   const item = learningModule.items[itemIndex];
 
   if (!item) return null;
+
+  if (!canAccessSequentialItem(learningModule.items, itemIndex)) {
+    return null;
+  }
 
   return {
     module: learningModule,

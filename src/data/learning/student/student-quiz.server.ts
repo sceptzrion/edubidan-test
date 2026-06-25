@@ -2,6 +2,7 @@ import { ContentType } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { fisherYatesShuffle } from "@/lib/quiz/fisher-yates";
+import { getStudentModuleDetailData } from "@/data/learning/student/student-learning.server";
 
 export interface StudentQuizOptionData {
   id: number;
@@ -142,6 +143,19 @@ export async function getStudentQuizData(params: {
   const quiz = enrollment.module.contents[0]?.kuis;
 
   if (!quiz) {
+    return null;
+  }
+
+  const learningModule = await getStudentModuleDetailData({
+    userId: params.userId,
+    moduleId: params.moduleId,
+  });
+
+  const quizItem = learningModule?.items.find(
+    (item) => item.kind === "kuis" && item.id === params.quizId
+  );
+
+  if (!quizItem || quizItem.isLocked) {
     return null;
   }
 

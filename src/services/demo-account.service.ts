@@ -437,7 +437,7 @@ async function createDosenDemoAccount(): Promise<DemoAccountResult> {
     throw new Error("Profil dosen demo gagal dibuat.");
   }
 
-  const module = await prisma.module.create({
+  const demoModule = await prisma.module.create({
     data: {
       dosenProfileId: dosenUser.dosenProfile.id,
       title: `[DEMO ${identity.digits}] Pemeriksaan Kehamilan Dasar`,
@@ -467,7 +467,7 @@ async function createDosenDemoAccount(): Promise<DemoAccountResult> {
   });
 
   const materiOne = await createMateri({
-    moduleId: module.id,
+    moduleId: demoModule.id,
     order: 1,
     title: "Pengenalan Pemeriksaan Antenatal Care",
     description:
@@ -482,7 +482,7 @@ async function createDosenDemoAccount(): Promise<DemoAccountResult> {
   });
 
   const materiTwo = await createMateri({
-    moduleId: module.id,
+    moduleId: demoModule.id,
     order: 2,
     title: "Tahapan Pemeriksaan Ibu Hamil",
     description:
@@ -496,7 +496,7 @@ async function createDosenDemoAccount(): Promise<DemoAccountResult> {
   });
 
   const kuis = await createKuis({
-    moduleId: module.id,
+    moduleId: demoModule.id,
     order: 3,
     title: "Kuis Demo Pemeriksaan Kehamilan Dasar",
     description:
@@ -528,7 +528,7 @@ async function createDosenDemoAccount(): Promise<DemoAccountResult> {
     await prisma.enrollment.create({
       data: {
         userId: student.id,
-        moduleId: module.id,
+        moduleId: demoModule.id,
       },
     });
 
@@ -561,11 +561,11 @@ async function createDosenDemoAccount(): Promise<DemoAccountResult> {
   await prisma.notification.create({
     data: {
       userId: dosenUser.id,
-      moduleId: module.id,
+      moduleId: demoModule.id,
       type: NotificationType.MAHASISWA_BERGABUNG,
       title: "Data demo dosen siap digunakan",
       body: "Modul, materi, kuis, peserta, progres, dan hasil kuis dummy telah dibuat.",
-      href: `/dashboard/lecturer/modules/${module.id}`,
+      href: `/dashboard/lecturer/modules/${demoModule.id}`,
     },
   });
 

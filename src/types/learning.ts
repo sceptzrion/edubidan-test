@@ -27,6 +27,10 @@ export interface LearningItem {
   duration: string;
   estimatedMinutes: number;
   isCompleted: boolean;
+
+  isLocked?: boolean;
+  lockedReason?: string;
+
   thumbnailUrl?: string;
   videoSource?: "upload" | "embed";
   videoUrl?: string;

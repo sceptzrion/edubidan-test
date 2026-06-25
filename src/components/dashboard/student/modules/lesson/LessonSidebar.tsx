@@ -9,6 +9,8 @@ interface LessonPlaylistItem {
   title: string;
   duration: string;
   completed: boolean;
+  isLocked?: boolean;
+  lockedReason?: string;
 }
 
 interface LessonSidebarProps {

@@ -86,16 +86,22 @@ export async function reorderModuleContents(params: {
   }
 
   await prisma.$transaction(
-    orderedContentIds.map((contentId, index) =>
-      prisma.moduleContent.update({
-        where: {
-          id: contentId,
-        },
-        data: {
-          order: index + 1,
-        },
-      })
-    )
+    async (tx) => {
+      for (const [index, contentId] of orderedContentIds.entries()) {
+        await tx.moduleContent.update({
+          where: {
+            id: contentId,
+          },
+          data: {
+            order: index + 1,
+          },
+        });
+      }
+    },
+    {
+      maxWait: 10_000,
+      timeout: 20_000,
+    }
   );
 
   return {

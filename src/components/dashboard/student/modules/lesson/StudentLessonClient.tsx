@@ -22,7 +22,7 @@ type ProgressApiResponse = {
   data: unknown;
 };
 
-type NavigableLearningItem = Pick<LearningItem, "id" | "kind">;
+type NavigableLearningItem = Pick<LearningItem, "id" | "kind" | "isLocked">;
 
 function getLearningItemHref(moduleId: number, item: NavigableLearningItem) {
   if (item.kind === "kuis") {
@@ -79,6 +79,14 @@ export function StudentLessonClient({ data }: StudentLessonClientProps) {
     if (!success) return;
 
     if (nextItem) {
+      /*
+       * Catatan:
+       * Jika current item adalah materi, tombol next boleh lanjut setelah materi
+       * berhasil ditandai selesai, meskipun nextItem pada data awal masih terbaca
+       * locked. Setelah navigasi, server akan membaca progress terbaru.
+       */
+      if (nextItem.isLocked && item.kind !== "materi") return;
+
       navigateToItem(nextItem);
       router.refresh();
       return;
@@ -95,6 +103,8 @@ export function StudentLessonClient({ data }: StudentLessonClientProps) {
   };
 
   const handleNavigate = (targetItem: NavigableLearningItem) => {
+    if (targetItem.isLocked) return;
+
     navigateToItem(targetItem);
   };
 

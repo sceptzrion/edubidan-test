@@ -30,7 +30,11 @@ export function ModuleLearningTab({ moduleId, items }: ModuleLearningTabProps) {
           <PlaylistItem
             key={`${item.kind}-${item.id}`}
             item={toModulePlaylistItem(item)}
-            onClick={() => router.push(getLearningItemHref(moduleId, item))}
+            onClick={() => {
+              if (item.isLocked) return;
+
+              router.push(getLearningItemHref(moduleId, item));
+            }}
           />
         ))
       ) : (
