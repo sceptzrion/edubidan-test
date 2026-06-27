@@ -1,4 +1,11 @@
-import { BookOpen, Clock, Loader2, User } from "lucide-react";
+import {
+  BookOpen,
+  Clock,
+  Loader2,
+  LogOut,
+  MoreVertical,
+  User,
+} from "lucide-react";
 
 interface ModuleCardData {
   id: number;
@@ -16,32 +23,75 @@ interface ModuleCardProps {
   data: ModuleCardData;
   layout: "grid" | "list";
   isOpening?: boolean;
+  isActionMenuOpen?: boolean;
   onClick: () => void;
+  onToggleActionMenu: () => void;
+  onLeaveClick: () => void;
 }
 
 export function ModuleCard({
   data,
   layout,
   isOpening = false,
+  isActionMenuOpen = false,
   onClick,
+  onToggleActionMenu,
+  onLeaveClick,
 }: ModuleCardProps) {
   const contentLabel = `${data.lessons} Materi • ${data.quizzes} Kuis`;
+
+  const actionMenu = (
+    <div className="absolute right-3 top-3 z-30">
+      <button
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          onToggleActionMenu();
+        }}
+        disabled={isOpening}
+        className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/20 bg-card/95 text-muted-foreground shadow-lg shadow-black/10 backdrop-blur-md transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+        aria-label="Buka opsi modul"
+        aria-expanded={isActionMenuOpen}
+      >
+        <MoreVertical size={18} />
+      </button>
+
+      {isActionMenuOpen && (
+        <div
+          onClick={(event) => event.stopPropagation()}
+          className="absolute right-0 top-11 z-40 w-52 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-black/15 animate-in fade-in zoom-in-95 slide-in-from-top-1 duration-150"
+        >
+          <button
+            type="button"
+            onClick={onLeaveClick}
+            className="flex w-full items-center gap-3 px-4 py-3 text-left text-xs font-extrabold text-red-500 transition-colors hover:bg-red-500/10"
+          >
+            <LogOut size={16} />
+            Keluar dari modul ini
+          </button>
+        </div>
+      )}
+    </div>
+  );
 
   if (layout === "list") {
     return (
       <div
         onClick={isOpening ? undefined : onClick}
         aria-busy={isOpening}
-        className={`w-full bg-card rounded-2xl border border-border p-3 sm:p-0 flex flex-row items-center sm:items-stretch hover:shadow-md hover:border-primary/40 transition-all group overflow-hidden sm:h-44 ${
+        className={`relative w-full bg-card rounded-2xl border border-border p-3 sm:p-0 flex flex-row items-center sm:items-stretch hover:shadow-md hover:border-primary/40 transition-all group overflow-hidden sm:h-44 ${
           isOpening ? "cursor-wait opacity-80" : "cursor-pointer"
         }`}
       >
+        {actionMenu}
+
         <div className="relative shrink-0 w-24 h-24 sm:w-64 sm:h-full rounded-xl sm:rounded-none sm:rounded-l-2xl overflow-hidden sm:border-r border-border/50">
           <img
             src={data.img}
             alt={data.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
+
           <div className="sm:hidden absolute bottom-0 left-0 right-0 h-1 bg-muted-foreground/30">
             <div
               className="h-full bg-primary transition-all duration-1000"
@@ -50,11 +100,12 @@ export function ModuleCard({
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col justify-center pl-4 sm:p-6 min-w-0">
+        <div className="flex-1 flex flex-col justify-center pl-4 pr-12 sm:p-6 sm:pr-16 min-w-0">
           <div className="min-w-0 mb-1 sm:mb-2">
             <h3 className="text-sm sm:text-lg font-extrabold text-foreground group-hover:text-primary transition-colors line-clamp-1 sm:line-clamp-2 leading-tight">
               {data.title}
             </h3>
+
             <p className="hidden sm:block text-sm font-medium text-muted-foreground line-clamp-1 mt-1">
               {data.desc}
             </p>
@@ -64,6 +115,7 @@ export function ModuleCard({
             <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
               <User size={10} className="sm:w-3 sm:h-3" />
             </div>
+
             <span className="text-[10px] sm:text-xs font-semibold text-muted-foreground truncate">
               {data.instructor}
             </span>
@@ -77,6 +129,7 @@ export function ModuleCard({
               />
               <span className="truncate">{contentLabel}</span>
             </span>
+
             <span className="flex items-center gap-1 sm:gap-1.5">
               <Clock
                 size={12}
@@ -84,6 +137,7 @@ export function ModuleCard({
               />
               {data.duration}
             </span>
+
             {data.progress > 0 && (
               <span className="text-primary ml-auto whitespace-nowrap">
                 {data.progress}%
@@ -115,16 +169,19 @@ export function ModuleCard({
     <div
       onClick={isOpening ? undefined : onClick}
       aria-busy={isOpening}
-      className={`bg-card rounded-2xl border border-border overflow-hidden hover:shadow-lg hover:border-primary/40 transition-all group flex flex-col ${
+      className={`relative bg-card rounded-2xl border border-border overflow-visible hover:shadow-lg hover:border-primary/40 transition-all group flex flex-col ${
         isOpening ? "cursor-wait opacity-80" : "cursor-pointer"
       }`}
     >
-      <div className="relative aspect-4/3 sm:aspect-video overflow-hidden">
+      {actionMenu}
+
+      <div className="relative aspect-4/3 sm:aspect-video overflow-hidden rounded-t-2xl">
         <img
           src={data.img}
           alt={data.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
+
         <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
         {isOpening && (
@@ -147,7 +204,7 @@ export function ModuleCard({
       </div>
 
       <div className="p-5 flex-1 flex flex-col">
-        <h3 className="text-lg font-extrabold text-foreground mb-1.5 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+        <h3 className="text-lg font-extrabold text-foreground mb-1.5 pr-9 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
           {data.title}
         </h3>
 
@@ -159,6 +216,7 @@ export function ModuleCard({
           <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
             <User size={14} />
           </div>
+
           <span className="text-xs font-semibold text-muted-foreground line-clamp-1">
             {data.instructor}
           </span>
@@ -170,6 +228,7 @@ export function ModuleCard({
               <BookOpen size={14} className="text-primary/70" />
               {contentLabel}
             </span>
+
             <span className="flex items-center gap-1.5">
               <Clock size={14} className="text-primary/70" />
               {data.duration}
