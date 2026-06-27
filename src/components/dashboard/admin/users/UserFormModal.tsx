@@ -450,9 +450,8 @@ export function UserFormModal({
                     </p>
 
                     <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed mt-1">
-                      Sistem akan membuat password sementara baru, menyimpannya
-                      ke akun pengguna, lalu mengirim informasi reset ke email
-                      pengguna jika email service sudah aktif.
+                      Sistem akan membuat password sementara dan mengirimkan
+                      informasi akun melalui email.
                     </p>
 
                     {resetStatus === "ready" && (
