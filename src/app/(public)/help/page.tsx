@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Navbar } from "@/components/layout/public/Navbar";
+import { PublicNavbar } from "@/components/layout/public/PublicNavbar";
 import { Footer } from "@/components/layout/public/Footer";
 import { HelpCenterClient } from "@/components/sections/help/HelpCenterClient";
 
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function HelpCenterPage() {
   return (
     <div className="min-h-screen bg-background transition-colors duration-300 font-sans text-foreground flex flex-col">
-      <Navbar />
+      <PublicNavbar />
 
       <main className="flex-1">
         <HelpCenterClient />

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
@@ -8,29 +7,18 @@ import { ArrowLeft } from "lucide-react";
 import { UserAccountDropdown } from "@/components/auth/shared/UserAccountDropdown";
 import { EduBidanLogo } from "@/components/ui/EduBidanLogo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import {
-  getStoredUser,
-  subscribeToAuthStateChange,
-  type StoredUser,
-} from "@/lib/auth/client-auth";
+import type { StoredUser } from "@/lib/auth/client-auth";
 
-export function Navbar() {
+type NavbarProps = {
+  initialUser?: StoredUser | null;
+};
+
+export function Navbar({ initialUser = null }: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [storedUser, setStoredUserState] = useState<StoredUser | null>(null);
-
   const isHomePage = pathname === "/";
-
-  useEffect(() => {
-    function syncStoredUser() {
-      setStoredUserState(getStoredUser());
-    }
-
-    syncStoredUser();
-
-    return subscribeToAuthStateChange(syncStoredUser);
-  }, []);
+  const storedUser = initialUser;
 
   return (
     <nav className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border">

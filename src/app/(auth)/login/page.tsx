@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 
 import { LoginForm } from "@/components/auth/login/LoginForm";
+import { redirectIfAuthenticated } from "@/lib/auth/guards";
 
 export const metadata: Metadata = {
   title: "Masuk | EduBidan",
@@ -19,7 +20,9 @@ function LoginFallback() {
   );
 }
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  await redirectIfAuthenticated();
+
   return (
     <Suspense fallback={<LoginFallback />}>
       <LoginForm />

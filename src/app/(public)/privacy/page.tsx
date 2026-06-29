@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ShieldCheck } from "lucide-react";
 
-import { Navbar } from "@/components/layout/public/Navbar";
+import { PublicNavbar } from "@/components/layout/public/PublicNavbar";
 import { Footer } from "@/components/layout/public/Footer";
 import { privacySections } from "@/data/public/legal-content";
 
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-background transition-colors duration-300 font-sans text-foreground flex flex-col">
-      <Navbar />
+      <PublicNavbar />
 
       <main className="flex-1">
         <section className="relative py-16 md:py-20 overflow-hidden bg-primary/5 border-b border-border">

@@ -26,3 +26,11 @@ export async function requireRole(pathname: string, allowedRoles: Role[]) {
 
   return user;
 }
+
+export async function redirectIfAuthenticated() {
+  const user = await getCurrentSessionUser();
+
+  if (user) {
+    redirect(getUnauthorizedRedirectUrl(user.role));
+  }
+}

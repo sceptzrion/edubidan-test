@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { GraduationCap, Heart, Shield, Star, Target } from "lucide-react";
 
-import { Navbar } from "@/components/layout/public/Navbar";
+import { PublicNavbar } from "@/components/layout/public/PublicNavbar";
 import { Footer } from "@/components/layout/public/Footer";
 import { PilarCard } from "@/components/sections/about/PilarCard";
 import { VisiMisiCard } from "@/components/sections/about/VisiMisiCard";
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background transition-colors duration-300 font-sans text-foreground flex flex-col">
-      <Navbar />
+      <PublicNavbar />
 
       <main className="flex-1">
         <section className="relative py-20 lg:py-28 overflow-hidden bg-primary/5">
